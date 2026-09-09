@@ -1,0 +1,43 @@
+import uuid
+from datetime import datetime
+
+from sqlalchemy import DateTime, String, Text
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
+from sqlalchemy.orm import Mapped, mapped_column
+
+from db.base import Base
+
+
+class Alert(Base):
+    __tablename__ = "alerts"
+
+    alert_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+
+    event_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=False,
+    )
+
+    status: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+    )
+
+    reasons: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String)
+    )
+
+    message: Mapped[str | None] = mapped_column(Text)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+
+    acknowledged_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True)
+    )
