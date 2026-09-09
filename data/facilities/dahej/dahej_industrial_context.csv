@@ -1,0 +1,7 @@
+context_id,name,context_type,geometry_source,source_url,confidence
+CTX-DAHEJ-GIDC,Dahej GIDC,gidc_estate,official_gis,https://www.gidc.gujarat.gov.in/,high
+CTX-DAHEJ-GIDC2,Dahej GIDC-II,gidc_estate,official_gis,https://www.gidc.gujarat.gov.in/,high
+CTX-DAHEJ-GIDC3,Dahej GIDC-III,gidc_estate,official_gis,https://www.gidc.gujarat.gov.in/,high
+CTX-DAHEJ-SEZ-I,Dahej SEZ Part I,sez,official_gis,https://www.dahejsez.com/,high
+CTX-DAHEJ-SEZ-II,Dahej SEZ Part II,sez,official_gis,https://www.dahejsez.com/,high
+CTX-DAHEJ-PCPIR,Dahej PCPIR,pcpir,official_gis,,high

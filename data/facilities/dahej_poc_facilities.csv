@@ -1,0 +1,6 @@
+facility_id,name,operator,facility_type,latitude,longitude
+FAC-DAHEJ-001,DGEN Mega Power Plant,Torrent Power,power_plant,21.7069628,72.6115622
+FAC-DAHEJ-002,Dahej OPAL Captive Power Plant,OPaL,power_plant,21.6933785,72.6244133
+FAC-DAHEJ-003,Dahej Cogen Power Plant,Reliance Industries,power_plant,21.686272,72.5838939
+FAC-DAHEJ-004,GACL-NALCO Alkalies & Chemicals Pvt. Ltd.,GACL-NALCO,chemical,21.7082538,72.6886341
+FAC-DAHEJ-005,Reliance Industries Ltd. Dahej Plant,Reliance Industries,petrochemical,21.6828255,72.5724389

@@ -1,0 +1,15 @@
+facility_id,name,operator,facility_type,thermal_relevance,latitude,longitude,coordinate_status,source
+FAC-DAHEJ-001,DGEN Mega Power Plant,Torrent Power,power_plant,high,21.7069628,72.6115622,verified,OpenStreetMap/business
+FAC-DAHEJ-002,Dahej OPAL Captive Power Plant,OPaL,power_plant,high,21.6933785,72.6244133,verified,OpenStreetMap/business
+FAC-DAHEJ-003,Dahej Cogen Power Plant,Reliance Industries,power_plant,high,21.686272,72.5838939,verified,OpenStreetMap/business
+FAC-DAHEJ-004,GACL-NALCO Alkalies & Chemicals Pvt. Ltd.,GACL-NALCO,chemical,high,21.7082538,72.6886341,verified,OpenStreetMap/business
+FAC-DAHEJ-005,Reliance Industries Ltd. Dahej Plant,Reliance Industries,petrochemical,high,21.6828255,72.5724389,verified,OpenStreetMap/business
+FAC-DAHEJ-006,Hindalco Industries Ltd. — Birla Copper,Hindalco,copper_smelter,high,21.7019444,72.5438889,verified,Hindalco emergency plan
+FAC-DAHEJ-007,Petronet LNG Dahej Terminal,Petronet LNG,lng_terminal,high,21.6738333,72.51,verified,GMB Ports / Petronet LNG
+FAC-DAHEJ-008,ONGC Petro Additions Ltd. (OPaL),OPaL,petrochemical,high,21.674364,72.543692,verified,Environmental clearance / GEM
+FAC-DAHEJ-009,Aarti Industries Ltd. Dahej,Aarti Industries,chemical,high,21.682028,72.550028,verified,IFC / environmental clearance
+FAC-DAHEJ-010,SRF Limited — Dahej,SRF,chemical,high,21.705686,72.63686,verified,SRF / location source
+FAC-DAHEJ-011,GACL-NALCO Dahej Caustic Captive Power Station,GACL-NALCO,power_plant,high,21.710191,72.690406,verified,Global Energy Monitor
+FAC-DAHEJ-012,Tagros Chemicals India Pvt. Ltd.,Tagros,chemical,high,21.729633,72.598253,verified,Environmental impact assessment
+FAC-DAHEJ-013,Meghmani Finechem / Meghmani Organic — Dahej,Meghmani,chemical,high,21.719983,72.611717,verified,Environmental clearance
+FAC-DAHEJ-014,Adani Petronet (Dahej) Port,Adani Petronet,port,high,21.6833333,72.5095,verified,GMB / Adani port information

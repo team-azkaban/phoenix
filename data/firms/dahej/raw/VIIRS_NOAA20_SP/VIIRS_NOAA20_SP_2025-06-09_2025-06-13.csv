@@ -1,0 +1,4 @@
+latitude,longitude,bright_ti4,scan,track,acq_date,acq_time,satellite,instrument,confidence,version,bright_ti5,frp,daynight,type
+21.4768,72.91872,330.2,0.4,0.37,2025-06-09,823,N20,VIIRS,l,2,301.49,1.06,D,0
+21.52921,72.9492,337.7,0.4,0.37,2025-06-09,823,N20,VIIRS,n,2,301.46,2.38,D,0
+22.02258,72.57255,339.21,0.47,0.4,2025-06-10,805,N20,VIIRS,l,2,304.28,10.19,D,0
