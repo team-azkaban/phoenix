@@ -1,6 +1,7 @@
 import uuid
+from datetime import datetime
 
-from sqlalchemy import Float, Integer, String
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -13,24 +14,58 @@ class SiteBaseline(Base):
     baseline_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,
+        server_default=func.gen_random_uuid(),
     )
 
     facility_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
+        ForeignKey(
+            "facilities.facility_id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
+        unique=True,
     )
 
-    baseline_period: Mapped[str | None] = mapped_column(String)
+    baseline_frp: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
 
-    observation_count: Mapped[int | None] = mapped_column(Integer)
+    frp_std: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
 
-    mean_frp: Mapped[float | None] = mapped_column(Float)
+    typical_active_hours: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True,
+    )
 
-    median_frp: Mapped[float | None] = mapped_column(Float)
+    typical_duration: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
 
-    std_frp: Mapped[float | None] = mapped_column(Float)
+    seasonal_pattern: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True,
+    )
 
-    percentile_95_frp: Mapped[float | None] = mapped_column(Float)
+    historical_event_count: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        server_default="0",
+    )
 
-    statistics: Mapped[dict | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )

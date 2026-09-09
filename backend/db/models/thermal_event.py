@@ -2,8 +2,8 @@ import uuid
 from datetime import datetime
 
 from geoalchemy2 import Geography
-from sqlalchemy import DateTime, Float, Integer, String, Text
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db.base import Base
@@ -15,7 +15,7 @@ class ThermalEvent(Base):
     event_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,
+        server_default=func.gen_random_uuid(),
     )
 
     first_seen: Mapped[datetime] = mapped_column(
@@ -38,23 +38,28 @@ class ThermalEvent(Base):
         nullable=False,
     )
 
-    geometry: Mapped[object] = mapped_column(
+    geometry: Mapped[object | None] = mapped_column(
         Geography(
             geometry_type="POINT",
             srid=4326,
             spatial_index=True,
         ),
-        nullable=False,
+        nullable=True,
     )
 
     observation_count: Mapped[int] = mapped_column(
         Integer,
-        default=0,
         nullable=False,
+        server_default="0",
     )
 
     facility_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True)
+        UUID(as_uuid=True),
+        ForeignKey(
+            "facilities.facility_id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
     )
 
     facility_distance_m: Mapped[float | None] = mapped_column(Float)
@@ -89,12 +94,14 @@ class ThermalEvent(Base):
 
     classification_confidence: Mapped[float | None] = mapped_column(Float)
 
-    classification_reasons: Mapped[list[str] | None] = mapped_column(
-        ARRAY(Text)
+    classification_reasons: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True,
     )
 
     satellite_image_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True)
+        UUID(as_uuid=True),
+        nullable=True,
     )
 
     image_confirmation: Mapped[str | None] = mapped_column(String)
@@ -115,29 +122,34 @@ class ThermalEvent(Base):
         Geography(
             geometry_type="POLYGON",
             srid=4326,
-        )
+        ),
+        nullable=True,
     )
 
     risk_score: Mapped[float | None] = mapped_column(Float)
 
     severity: Mapped[str | None] = mapped_column(String)
 
-    risk_reasons: Mapped[list[str] | None] = mapped_column(
-        ARRAY(Text)
+    risk_reasons: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True,
     )
 
     alert_status: Mapped[str | None] = mapped_column(String)
 
-    alert_reasons: Mapped[list[str] | None] = mapped_column(
-        ARRAY(Text)
+    alert_reasons: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True,
     )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
+        server_default=func.now(),
     )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
+        server_default=func.now(),
     )

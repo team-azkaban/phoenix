@@ -12,7 +12,10 @@ class EventObservation(Base):
 
     event_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey("thermal_events.event_id", ondelete="CASCADE"),
+        ForeignKey(
+            "thermal_events.event_id",
+            ondelete="CASCADE",
+        ),
         primary_key=True,
     )
 

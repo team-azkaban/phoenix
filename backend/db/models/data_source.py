@@ -1,6 +1,7 @@
 import uuid
+from datetime import datetime
 
-from sqlalchemy import DateTime, String
+from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -13,18 +14,22 @@ class DataSource(Base):
     source_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,
+        server_default=func.gen_random_uuid(),
     )
 
-    name: Mapped[str] = mapped_column(String, nullable=False)
+    name: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+        unique=True,
+    )
 
-    source_type: Mapped[str | None] = mapped_column(String)
+    description: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+    )
 
-    url: Mapped[str | None] = mapped_column(String)
-
-    data_version: Mapped[str | None] = mapped_column(String)
-
-    created_at: Mapped[DateTime] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
+        server_default=func.now(),
     )

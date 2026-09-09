@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from geoalchemy2 import Geography
-from sqlalchemy import DateTime, Float, String
+from sqlalchemy import DateTime, Float, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -15,7 +15,7 @@ class ThermalObservation(Base):
     observation_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,
+        server_default=func.gen_random_uuid(),
     )
 
     timestamp: Mapped[datetime] = mapped_column(
@@ -52,11 +52,19 @@ class ThermalObservation(Base):
 
     source_record_id: Mapped[str | None] = mapped_column(String)
 
-    geometry: Mapped[object] = mapped_column(
+    geometry: Mapped[object | None] = mapped_column(
         Geography(
             geometry_type="POINT",
             srid=4326,
             spatial_index=True,
         ),
-        nullable=False,
+        nullable=True,
     )
+
+    ingestion_timestamp: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    data_version: Mapped[str | None] = mapped_column(String)

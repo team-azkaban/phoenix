@@ -1,7 +1,8 @@
 import uuid
+from datetime import datetime
 
 from geoalchemy2 import Geography
-from sqlalchemy import DateTime, Float, Integer, String
+from sqlalchemy import DateTime, Float, Integer, String, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -14,7 +15,7 @@ class Facility(Base):
     facility_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,
+        server_default=func.gen_random_uuid(),
     )
 
     name: Mapped[str] = mapped_column(
@@ -36,35 +37,53 @@ class Facility(Base):
         nullable=False,
     )
 
-    geometry: Mapped[object] = mapped_column(
+    geometry: Mapped[object | None] = mapped_column(
         Geography(
             geometry_type="POINT",
             srid=4326,
             spatial_index=True,
         ),
+        nullable=True,
+    )
+
+    source: Mapped[str] = mapped_column(
+        String,
         nullable=False,
     )
 
-    source: Mapped[str | None] = mapped_column(String)
-
-    baseline_stats: Mapped[dict | None] = mapped_column(JSONB)
+    baseline_stats: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True,
+    )
 
     historical_event_count: Mapped[int] = mapped_column(
         Integer,
-        default=0,
         nullable=False,
+        server_default="0",
     )
 
     anomalous_event_count: Mapped[int] = mapped_column(
         Integer,
-        default=0,
         nullable=False,
+        server_default="0",
     )
 
     current_risk: Mapped[float | None] = mapped_column(Float)
 
     cumulative_emissions: Mapped[float | None] = mapped_column(Float)
 
-    last_incident: Mapped[DateTime | None] = mapped_column(
+    last_incident: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True)
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
     )

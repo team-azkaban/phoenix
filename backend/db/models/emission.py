@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, String
+from sqlalchemy import DateTime, Float, ForeignKey, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -14,24 +14,39 @@ class Emission(Base):
     emission_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,
+        server_default=func.gen_random_uuid(),
     )
 
     event_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
+        ForeignKey(
+            "thermal_events.event_id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
     )
 
-    emissions_estimate: Mapped[float] = mapped_column(
+    facility_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            "facilities.facility_id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+    )
+
+    emissions_estimate: Mapped[float | None] = mapped_column(
         Float,
-        nullable=False,
+        nullable=True,
     )
 
-    unit: Mapped[str | None] = mapped_column(String)
-
-    method: Mapped[str | None] = mapped_column(String)
+    method: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
+        server_default=func.now(),
     )

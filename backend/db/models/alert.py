@@ -1,8 +1,8 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, String, Text
-from sqlalchemy.dialects.postgresql import ARRAY, UUID
+from sqlalchemy import DateTime, Float, ForeignKey, String, func
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db.base import Base
@@ -14,30 +14,41 @@ class Alert(Base):
     alert_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,
+        server_default=func.gen_random_uuid(),
     )
 
     event_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
+        ForeignKey(
+            "thermal_events.event_id",
+            ondelete="CASCADE",
+        ),
         nullable=False,
+    )
+
+    severity: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+    )
+
+    risk_score: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
+
+    reasons: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True,
     )
 
     status: Mapped[str] = mapped_column(
         String,
         nullable=False,
+        server_default="active",
     )
-
-    reasons: Mapped[list[str] | None] = mapped_column(
-        ARRAY(String)
-    )
-
-    message: Mapped[str | None] = mapped_column(Text)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-    )
-
-    acknowledged_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True)
+        server_default=func.now(),
     )
