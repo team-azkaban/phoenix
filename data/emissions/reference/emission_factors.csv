@@ -1,0 +1,13 @@
+factor_id,source_class,pollutant,emission_factor,unit,frp_to_dm_factor,frp_to_dm_unit,source,source_document,source_type,confidence,is_approximate,notes
+EF-AGR-CO2,agricultural_residue,CO2,1515,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Gross CO2 emission factor; IPCC notes that CO2 from non-woody cropland biomass is not necessarily reported as a net anthropogenic CO2 source."
+EF-AGR-CH4,agricultural_residue,CH4,2.7,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Methane emission factor."
+EF-AGR-N2O,agricultural_residue,N2O,0.07,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Nitrous oxide emission factor."
+EF-GRASS-CO2,savanna_grassland,CO2,1613,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Gross CO2 emission factor."
+EF-GRASS-CH4,savanna_grassland,CH4,2.3,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Methane emission factor."
+EF-GRASS-N2O,savanna_grassland,N2O,0.21,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Nitrous oxide emission factor."
+EF-TROPFOREST-CO2,tropical_forest,CO2,1580,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Gross CO2 emission factor."
+EF-TROPFOREST-CH4,tropical_forest,CH4,6.8,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Methane emission factor."
+EF-TROPFOREST-N2O,tropical_forest,N2O,0.20,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Nitrous oxide emission factor."
+EF-EXTFOREST-CO2,extra_tropical_forest,CO2,1569,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Gross CO2 emission factor."
+EF-EXTFOREST-CH4,extra_tropical_forest,CH4,4.7,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Methane emission factor."
+EF-EXTFOREST-N2O,extra_tropical_forest,N2O,0.26,g_per_kg_dry_matter,0.368,kg_dry_matter_per_MJ_FRE,IPCC,2019 Refinement Volume 4 Table 2.5,ipcc_default,high,false,"Nitrous oxide emission factor."

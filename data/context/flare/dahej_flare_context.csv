@@ -1,0 +1,4 @@
+context_id,name,context_type,facility_type,latitude,longitude,context_radius_m,source,source_type,confidence,is_approximate
+FLARE-001,Petronet LNG Dahej,documented_flare_system,lng_terminal,21.674600,72.536000,1500,Petronet LNG environmental clearance and terminal documentation,environmental_clearance,high,true
+FLARE-002,ONGC C2-C3 Plant Dahej,documented_flare_area,gas_processing,21.690000,72.620000,1500,ONGC Government eProcurement flare-area tender,government_tender,high,true
+FLARE-003,OPaL Dahej,documented_main_auxiliary_flare,petrochemical,21.693395,72.623335,1500,OPaL environmental compliance report,environmental_compliance,high,true

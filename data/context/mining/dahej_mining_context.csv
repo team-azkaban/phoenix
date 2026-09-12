@@ -1,0 +1,4 @@
+context_id,name,context_type,material,latitude,longitude,lease_area_ha,context_radius_m,source,source_type,confidence,is_approximate
+MINE-001,S.B.P. Bricks - Jambusar,clay_brick_lease,ordinary_clay,22.063586,72.500539,0.9915,300,Government of India Environmental Clearance,environment_clearance_record,medium,true
+MINE-002,SRC Bricks - Jambusar,clay_brick_lease,ordinary_clay,22.064686,72.486303,3.6017,300,Government of India Environmental Clearance,environment_clearance_record,medium,true
+MINE-003,Tapi Bricks - Jambusar,clay_brick_lease,ordinary_clay,22.075192,72.825633,2.7621,300,Government of India Environmental Clearance,environment_clearance_record,medium,true
