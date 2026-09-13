@@ -1,1 +1,90 @@
+@import "leaflet/dist/leaflet.css";
 @import "tailwindcss";
+
+@theme {
+  --font-display: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+
+  --color-background: oklch(0.985 0.003 85);
+  --color-foreground: oklch(0.17 0.035 255);
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.17 0.035 255);
+  --color-primary: oklch(0.66 0.22 38);
+  --color-primary-foreground: oklch(0.99 0.01 85);
+  --color-secondary: oklch(0.96 0.008 255);
+  --color-secondary-foreground: oklch(0.25 0.035 255);
+  --color-muted: oklch(0.955 0.006 255);
+  --color-muted-foreground: oklch(0.48 0.025 255);
+  --color-accent: oklch(0.95 0.035 55);
+  --color-accent-foreground: oklch(0.3 0.08 45);
+  --color-border: oklch(0.9 0.012 255);
+  --color-input: oklch(0.9 0.012 255);
+
+  --color-thermal: oklch(0.65 0.22 38);
+  --color-thermal-bright: oklch(0.75 0.19 65);
+  --color-amber: oklch(0.78 0.17 82);
+  --color-danger: oklch(0.58 0.22 25);
+  --color-live: oklch(0.64 0.19 145);
+  --color-info: oklch(0.62 0.16 245);
+  --color-map: oklch(0.94 0.012 145);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+}
+
+/* Event popup */
+.phoenix-event-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.18);
+}
+
+.phoenix-event-popup .leaflet-popup-content {
+  margin: 0;
+}
+
+.phoenix-event-popup .leaflet-popup-tip {
+  background: white;
+}
+
+.phoenix-event-popup .leaflet-popup-close-button {
+  top: 7px !important;
+  right: 7px !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #64748b !important;
+  font-size: 16px !important;
+  line-height: 20px !important;
+  text-align: center;
+  z-index: 20;
+}
+
+.phoenix-event-popup .leaflet-popup-close-button:hover {
+  color: #0f172a !important;
+  background: white !important;
+}
+
+.phoenix-event-popup .leaflet-popup-scrolled {
+  border: 0;
+}
+
+.phoenix-event-popup {
+  margin-bottom: 10px;
+}

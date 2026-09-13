@@ -5,6 +5,10 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from db.database import get_db
+
+from api.map_replay import router as map_replay_router
+from api.map_events import router as map_events_router
+from api.facilities import router as facilities_router
 app = FastAPI(
     title="Phoenix API",
     description="Phoenix thermal event intelligence API",
@@ -19,6 +23,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(map_replay_router)
+app.include_router(map_events_router)
+app.include_router(facilities_router)
 
 @app.get("/health")
 def health():
