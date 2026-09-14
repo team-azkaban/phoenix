@@ -173,7 +173,7 @@ export default function AskPhoenix() {
             </div>
             <div>
               <h2 id="ask-phoenix-title" className="mt-1 text-xl font-semibold text-card-foreground">
-                Ask Phoenix about Dahej
+                Ask Phoenix 
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Ask about events, facilities, anomalies, risk, exposure, or alerts.
