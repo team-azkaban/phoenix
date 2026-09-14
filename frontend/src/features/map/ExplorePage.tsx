@@ -20,7 +20,7 @@ import MapLayers, {
 import TimelineControl, {
   type WindowSize,
 } from "./TimelineControl";
-import EventDetailDrawer from "../../components/display/EventDetailDrawer";
+import EventListPopup from "./EventListPopup";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 
@@ -272,14 +272,24 @@ export default function ExplorePage() {
         regionName="DAHEJ"
       />
 
-      <section className="relative mx-auto max-w-[1600px] px-4 py-4 md:px-6">
-        <div className="mb-4 flex items-end justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-semibold">
-              Thermal Intelligence
+      <section className="relative mx-auto max-w-[1400px] px-4 py-4 md:px-6">
+        
+        <div className="mb-4 flex items-end justify-between gap-4 mt-5">
+         <div>
+            <div className="flex items-center gap-3">
+              <span className="h-5 w-[2px] bg-thermal" />
+
+              <p className="text-[10px] font-bold tracking-[0.2em] text-thermal">
+                REGIONAL THERMAL MAP
+              </p>
+            </div>
+
+            <h1 className="mt-3 font-display text-2xl font-semibold tracking-[-0.035em] text-slate-950 lg:text-3xl">
+              AI Hotspot Classification
             </h1>
 
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+        
               Dahej Industrial Region
             </p>
           </div>
@@ -302,7 +312,7 @@ export default function ExplorePage() {
         </div>
 
         {loading && (
-          <div className="flex h-[620px] w-full items-center justify-center rounded-2xl border border-border bg-card">
+          <div className="flex h-[620px] w-full items-center justify-center border border-border bg-card">
             <div className="text-center">
               <div className="mx-auto mb-3 h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
 
@@ -328,7 +338,7 @@ export default function ExplorePage() {
         )}
 
         {!loading && !error && (
-          <div className="grid h-[520px] w-full grid-cols-[minmax(0,7fr)_minmax(320px,3fr)] overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="grid h-[450px] w-full grid-cols-[minmax(0,7fr)_minmax(320px,3fr)] overflow-hidden  border border-border bg-card">
             {/* ============================================================ */}
             {/* MAP - 70%                                                     */}
             {/* ============================================================ */}
@@ -410,14 +420,11 @@ export default function ExplorePage() {
         {/* ================================================================ */}
 
         {!loading && !error && selectedEvent && (
-          <div className="pointer-events-none absolute inset-x-0 top-[132px] z-40 mx-auto max-w-[1600px] px-4 md:px-6">
-            <div className="relative h-[520px] pointer-events-none">
-              <div className="pointer-events-auto">
-                <EventDetailDrawer event={selectedEvent} regionId={regionId ?? "dahej"} onClose={handleEventPopupClose} />
-              </div>
-            </div>
-          </div>
-        )}
+  <EventListPopup
+    event={selectedEvent}
+    onClose={handleEventPopupClose}
+  />
+)}
       </section>
     </main>
   );
