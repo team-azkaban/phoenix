@@ -84,7 +84,25 @@ def detail_payload(db: Session, alert_id: str) -> dict[str, Any]:
 
 @router.get("")
 def list_alerts(severity: str | None = None, status: str | None = None, facility_id: str | None = None, start: datetime | None = None, end: datetime | None = None, limit: Annotated[int, Query(ge=1, le=100)] = 50, offset: Annotated[int, Query(ge=0)] = 0, db: Session = Depends(get_db)):
-    rows = db.execute(text("""SELECT a.alert_id, a.event_id, a.severity, a.risk_score, a.status, a.created_at, f.name AS facility_name, COALESCE(c.classification, te.classification, 'unknown') AS classification FROM alerts a JOIN thermal_events te ON te.event_id=a.event_id LEFT JOIN facilities f ON f.facility_id=te.facility_id LEFT JOIN LATERAL (SELECT classification FROM classifications WHERE event_id=te.event_id ORDER BY created_at DESC LIMIT 1) c ON TRUE WHERE (:severity IS NULL OR a.severity=:severity) AND (:status IS NULL OR a.status=:status) AND (:facility_id IS NULL OR te.facility_id=CAST(:facility_id AS uuid)) AND (:start IS NULL OR a.created_at >= :start) AND (:end IS NULL OR a.created_at <= :end) ORDER BY a.risk_score DESC NULLS LAST, a.created_at DESC LIMIT :limit OFFSET :offset"""), {"severity": severity, "status": status, "facility_id": facility_id, "start": start, "end": end, "limit": limit, "offset": offset}).mappings().all()
+    filters = []
+    params: dict[str, Any] = {"limit": limit, "offset": offset}
+    if severity:
+        filters.append("a.severity = :severity")
+        params["severity"] = severity
+    if status:
+        filters.append("a.status = :status")
+        params["status"] = status
+    if facility_id:
+        filters.append("te.facility_id = CAST(:facility_id AS uuid)")
+        params["facility_id"] = facility_id
+    if start:
+        filters.append("a.created_at >= :start")
+        params["start"] = start
+    if end:
+        filters.append("a.created_at <= :end")
+        params["end"] = end
+    where = f"WHERE {' AND '.join(filters)}" if filters else ""
+    rows = db.execute(text(f"""SELECT a.alert_id, a.event_id, a.severity, a.risk_score, a.status, a.created_at, f.name AS facility_name, COALESCE(c.classification, te.classification, 'unknown') AS classification FROM alerts a JOIN thermal_events te ON te.event_id=a.event_id LEFT JOIN facilities f ON f.facility_id=te.facility_id LEFT JOIN LATERAL (SELECT classification FROM classifications WHERE event_id=te.event_id ORDER BY created_at DESC LIMIT 1) c ON TRUE {where} ORDER BY a.risk_score DESC NULLS LAST, a.created_at DESC LIMIT :limit OFFSET :offset"""), params).mappings().all()
     return {"count": len(rows), "alerts": [{"id": str(r["alert_id"]), "event_id": str(r["event_id"]), "facility_name": r["facility_name"] or "Unassigned thermal source", "classification": r["classification"], "severity": r["severity"], "risk_score": r["risk_score"], "status": r["status"], "created_at": iso(r["created_at"])} for r in rows]}
 
 
