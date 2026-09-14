@@ -9,7 +9,7 @@ import type { ThermalEvent } from "./EventMap";
 type EventListPopupProps = {
   event: ThermalEvent;
   onClose: () => void;
-};
+};  
 
 function formatDuration(
   hours: number | null | undefined,
