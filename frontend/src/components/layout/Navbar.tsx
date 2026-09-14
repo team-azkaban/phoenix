@@ -94,6 +94,11 @@ export default function Navbar({
               label="Facilities"
               active={isActive("/region/dahej/facilities")}
             />
+            <NavLink
+              to="/region/dahej/alerts"
+              label="Alerts"
+              active={isActive("/region/dahej/alerts")}
+            />
           </nav>
         )}
 
@@ -101,8 +106,8 @@ export default function Navbar({
         {showRegionNav && (
           <div className="flex items-center gap-1">
             {/* Alerts */}
-            <button
-              type="button"
+            <Link
+              to="/region/dahej/alerts"
               className="
                 relative
                 flex
@@ -126,7 +131,7 @@ export default function Navbar({
               </span>
 
               <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-danger" />
-            </button>
+            </Link>
 
             {/* Ask PHOENIX */}
             <button
