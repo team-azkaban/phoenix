@@ -10,74 +10,9 @@ import { useEffect } from "react";
 import EventPopup from "./EventPopup";
 import type { MapLayerState } from "./MapLayers";
 import type { MapFilterState } from "./MapFilters";
+import type { Facility, ThermalEvent } from "../../types/thermal";
 
-export type ThermalEvent = {
-  event_id: string;
-
-  latitude: number;
-  longitude: number;
-
-  classification: string | null;
-  classification_confidence: number | null;
-
-  severity: string | null;
-  risk_score: number | null;
-
-  current_frp: number | null;
-  max_frp: number | null;
-  mean_frp: number | null;
-
-  duration: string | number | null;
-  observation_count: number | null;
-
-  first_seen: string | null;
-  last_seen: string | null;
-
-  facility_id?: string | null;
-  facility_distance_m: number | null;
-  facility_type?: string | null;
-
-  landcover_class?: string | null;
-  built_up_fraction?: number | null;
-  forest_fraction?: number | null;
-  cropland_fraction?: number | null;
-
-  population_exposed: number | null;
-
-  baseline_frp: number | null;
-  baseline_deviation: number | null;
-  anomaly_state: string | null;
-
-  emissions_estimate?: number | null;
-
-  wind_speed?: number | null;
-  wind_direction?: number | null;
-
-  risk_reasons?: unknown;
-  classification_reasons?: unknown;
-
-  alert_status?: string | null;
-  alert_reasons?: unknown;
-};
-
-export type Facility = {
-  facility_id: string;
-  name: string;
-  operator: string | null;
-  facility_type: string | null;
-
-  latitude: number;
-  longitude: number;
-
-  source: string;
-
-  current_risk: number | null;
-  cumulative_emissions: number | null;
-  last_incident: string | null;
-
-  historical_event_count?: number | null;
-  anomalous_event_count?: number | null;
-};
+export type { Facility, ThermalEvent } from "../../types/thermal";
 
 interface EventMapProps {
   events: ThermalEvent[];
@@ -86,13 +21,13 @@ interface EventMapProps {
   layers: MapLayerState;
   filters: MapFilterState;
 
-  onLayerChange: (
-    layers: MapLayerState,
-  ) => void;
+  onLayerChange: (layer: keyof MapLayerState, value: boolean) => void;
 
   onFilterChange: (
     filters: MapFilterState,
   ) => void;
+  selectedEventId?: string | null;
+  onEventSelect?: (event: ThermalEvent) => void;
 }
 
 const DAHEJ_CENTER: [number, number] = [
@@ -351,8 +286,12 @@ function FacilityLayer({
 
 function ThermalEventLayer({
   events,
+  selectedEventId,
+  onEventSelect,
 }: {
   events: ThermalEvent[];
+  selectedEventId?: string | null;
+  onEventSelect?: (event: ThermalEvent) => void;
 }) {
   return (
     <>
@@ -377,8 +316,9 @@ function ThermalEventLayer({
               color,
               fillColor: color,
               fillOpacity: 0.78,
-              weight: 2,
+              weight: event.event_id === selectedEventId ? 5 : 2,
             }}
+            eventHandlers={{ click: () => onEventSelect?.(event) }}
           >
             <Popup
               className="phoenix-event-popup"
@@ -395,7 +335,7 @@ function ThermalEventLayer({
               maxWidth={270}
               minWidth={250}
             >
-              <EventPopup event={event} />
+              <EventPopup event={event} onInspect={() => onEventSelect?.(event)} />
             </Popup>
           </CircleMarker>
         );
@@ -482,6 +422,8 @@ export default function EventMap({
   filters: _filters,
   onLayerChange: _onLayerChange,
   onFilterChange: _onFilterChange,
+  selectedEventId,
+  onEventSelect,
 }: EventMapProps) {
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl">
@@ -517,6 +459,8 @@ export default function EventMap({
         {layers.thermalEvents && (
           <ThermalEventLayer
             events={events}
+            selectedEventId={selectedEventId}
+            onEventSelect={onEventSelect}
           />
         )}
 

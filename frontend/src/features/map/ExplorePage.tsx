@@ -3,11 +3,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 import Navbar from "../../components/layout/Navbar";
 import ThermalEventList from "./ThermalEventList";
-import EventListPopup from "./EventListPopup";
 import EventMap, {
   type Facility,
   type ThermalEvent,
@@ -21,6 +20,7 @@ import MapLayers, {
 import TimelineControl, {
   type WindowSize,
 } from "./TimelineControl";
+import EventDetailDrawer from "../../components/display/EventDetailDrawer";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 
@@ -56,6 +56,7 @@ const DEFAULT_FILTERS: MapFilterState = {
 
 export default function ExplorePage() {
   const { regionId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [windowSize, setWindowSize] =
     useState<WindowSize>("7D");
@@ -77,7 +78,7 @@ export default function ExplorePage() {
     );
 
   const [selectedEventId, setSelectedEventId] =
-    useState<string | null>(null);
+    useState<string | null>(searchParams.get("event"));
 
   const [loading, setLoading] =
     useState(true);
@@ -229,10 +230,18 @@ export default function ExplorePage() {
     event: ThermalEvent,
   ) {
     setSelectedEventId(event.event_id);
+    setSearchParams((current) => {
+      current.set("event", event.event_id);
+      return current;
+    }, { replace: true });
   }
 
   function handleEventPopupClose() {
     setSelectedEventId(null);
+    setSearchParams((current) => {
+      current.delete("event");
+      return current;
+    }, { replace: true });
   }
 
   if (regionId !== "dahej") {
@@ -256,7 +265,7 @@ export default function ExplorePage() {
         regionName="DAHEJ"
       />
 
-      <section className="mx-auto max-w-[1600px] px-4 py-4 md:px-6">
+      <section className="relative mx-auto max-w-[1600px] px-4 py-4 md:px-6">
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold">
@@ -329,6 +338,8 @@ export default function ExplorePage() {
                 onFilterChange={
                   setFilters
                 }
+                selectedEventId={selectedEventId}
+                onEventSelect={handleEventSelect}
               />
 
               {/* Top-left map controls */}
@@ -390,13 +401,14 @@ export default function ExplorePage() {
         {/* Opens only when an event is selected from the right-side list.  */}
         {/* ================================================================ */}
 
-        {selectedEvent && (
-          <EventListPopup
-            event={selectedEvent}
-            onClose={
-              handleEventPopupClose
-            }
-          />
+        {!loading && !error && selectedEvent && (
+          <div className="pointer-events-none absolute inset-x-0 top-[132px] z-40 mx-auto max-w-[1600px] px-4 md:px-6">
+            <div className="relative h-[520px] pointer-events-none">
+              <div className="pointer-events-auto">
+                <EventDetailDrawer event={selectedEvent} regionId={regionId ?? "dahej"} onClose={handleEventPopupClose} />
+              </div>
+            </div>
+          </div>
         )}
       </section>
     </main>
