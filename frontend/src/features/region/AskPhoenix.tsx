@@ -1,7 +1,7 @@
 import { Bot, LoaderCircle, MessageCircle, Send, Sparkles, User, X } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 
 import { askPhoenix } from "../../services/api";
@@ -18,6 +18,72 @@ type Message = {
   role: "user" | "assistant";
   text: string;
 };
+
+function renderInlineMarkdown(text: string): ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={`${part}-${index}`} className="font-semibold">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+
+    return <span key={`${part}-${index}`}>{part}</span>;
+  });
+}
+
+function AssistantMessage({ text }: { text: string }) {
+  const lines = text.split(/\r?\n/);
+
+  return (
+    <div className="max-w-[88%] rounded-xl bg-muted px-4 py-3 text-sm leading-6 text-foreground">
+      <div className="space-y-2">
+        {lines.map((line, index) => {
+          const numberedItem = line.match(/^\s*(\d+)\.\s+(.*)$/);
+          const bulletItem = line.match(/^\s*[-*]\s+(.*)$/);
+          const heading = line.match(/^\s*#{1,3}\s+(.*)$/);
+
+          if (numberedItem) {
+            return (
+              <div key={`${line}-${index}`} className="flex gap-2 pl-1">
+                <span className="font-medium text-primary">{numberedItem[1]}.</span>
+                <span>{renderInlineMarkdown(numberedItem[2])}</span>
+              </div>
+            );
+          }
+
+          if (bulletItem) {
+            return (
+              <div key={`${line}-${index}`} className="flex gap-2 pl-1">
+                <span className="text-primary">•</span>
+                <span>{renderInlineMarkdown(bulletItem[1])}</span>
+              </div>
+            );
+          }
+
+          if (heading) {
+            return (
+              <p key={`${line}-${index}`} className="font-semibold text-foreground">
+                {renderInlineMarkdown(heading[1])}
+              </p>
+            );
+          }
+
+          if (!line.trim()) {
+            return <div key={`${line}-${index}`} className="h-1" aria-hidden="true" />;
+          }
+
+          return (
+            <p key={`${line}-${index}`}>
+              {renderInlineMarkdown(line)}
+            </p>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function AskPhoenix() {
   const location = useLocation();
@@ -106,9 +172,6 @@ export default function AskPhoenix() {
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-[10px] font-semibold tracking-[0.18em] text-primary">
-                PHOENIX INTELLIGENCE
-              </div>
               <h2 id="ask-phoenix-title" className="mt-1 text-xl font-semibold text-card-foreground">
                 Ask Phoenix about Dahej
               </h2>
@@ -138,15 +201,13 @@ export default function AskPhoenix() {
                 {message.role === "assistant" && (
                   <Bot className="mt-1 h-4 w-4 shrink-0 text-primary" />
                 )}
-                <p
-                  className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-4 py-3 text-sm leading-6 ${
-                    message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-foreground"
-                  }`}
-                >
-                  {message.text}
-                </p>
+                {message.role === "user" ? (
+                  <p className="max-w-[85%] whitespace-pre-wrap rounded-xl bg-primary px-4 py-3 text-sm leading-6 text-primary-foreground">
+                    {message.text}
+                  </p>
+                ) : (
+                  <AssistantMessage text={message.text} />
+                )}
                 {message.role === "user" && (
                   <User className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
                 )}
@@ -155,7 +216,7 @@ export default function AskPhoenix() {
             {isLoading && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <LoaderCircle className="h-4 w-4 animate-spin text-primary" />
-                Reviewing Dahej intelligence…
+                Searching…
               </div>
             )}
           </div>
@@ -204,9 +265,6 @@ export default function AskPhoenix() {
               )}
             </button>
           </div>
-          <p className="mt-2 text-[10px] text-muted-foreground">
-            Answers are grounded in the Phoenix Dahej database and may reflect historical demo windows.
-          </p>
         </form>
           </section>
         </div>
