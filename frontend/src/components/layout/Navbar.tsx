@@ -1,4 +1,4 @@
-import { Bell, Search } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 interface NavbarProps {
@@ -128,37 +128,6 @@ export default function Navbar({
               <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-danger" />
             </button>
 
-            {/* Ask PHOENIX */}
-            <button
-              type="button"
-              className="
-                hidden
-                h-9
-                items-center
-                gap-2
-                rounded-md
-                border
-                border-border
-                bg-card
-                px-3
-                text-xs
-                font-medium
-                text-muted-foreground
-                shadow-sm
-                transition-colors
-                hover:border-primary/30
-                hover:text-foreground
-                sm:flex
-              "
-            >
-              <Search className="h-4 w-4" />
-
-              <span>Ask PHOENIX</span>
-
-              <kbd className="ml-2 rounded border border-border bg-muted px-1.5 py-0.5 text-[9px] text-muted-foreground">
-                ⌘ K
-              </kbd>
-            </button>
           </div>
         )}
       </div>

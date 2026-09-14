@@ -9,6 +9,7 @@ from db.database import get_db
 from api.map_replay import router as map_replay_router
 from api.map_events import router as map_events_router
 from api.facilities import router as facilities_router
+from api.chat import router as chat_router
 app = FastAPI(
     title="Phoenix API",
     description="Phoenix thermal event intelligence API",
@@ -26,6 +27,7 @@ app.add_middleware(
 app.include_router(map_replay_router)
 app.include_router(map_events_router)
 app.include_router(facilities_router)
+app.include_router(chat_router)
 
 @app.get("/health")
 def health():
@@ -53,5 +55,4 @@ def database_health(db: Session = Depends(get_db)):
         "user": user,
         "postgis": postgis,
     }
-
 
