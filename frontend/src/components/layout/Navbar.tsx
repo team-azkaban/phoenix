@@ -1,5 +1,12 @@
-import { Bell } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Map,
+  Factory,
+  Bell,
+} from "lucide-react";
+
+import phoenixLogo from "../../assets/phoenixlogo.png";
 
 interface NavbarProps {
   showRegionNav?: boolean;
@@ -9,28 +16,52 @@ interface NavbarProps {
 interface NavLinkProps {
   to: string;
   label: string;
+  icon: React.ReactNode;
   active: boolean;
 }
 
-function NavLink({ to, label, active }: NavLinkProps) {
+function NavLink({
+  to,
+  label,
+  icon,
+  active,
+}: NavLinkProps) {
   return (
     <Link
       to={to}
       className={`
-        rounded-md
-        px-3
-        py-2
-        text-sm
-        font-medium
+        group relative flex h-10 items-center gap-2.5
+        border-l border-r
+        px-3.5
         transition-colors
         ${
           active
-            ? "bg-primary/10 text-primary"
-            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+            ? "border-orange-200 bg-orange-50 text-orange-700"
+            : "border-transparent text-slate-500 hover:border-slate-200 hover:bg-slate-50 hover:text-slate-950"
         }
       `}
     >
-      {label}
+      {/* Active indicator */}
+      {active && (
+        <span className="absolute inset-x-0 bottom-0 h-0.5 bg-orange-500" />
+      )}
+
+      <span
+        className={`
+          flex h-5 w-5 items-center justify-center
+          ${
+            active
+              ? "text-orange-600"
+              : "text-slate-400 group-hover:text-slate-700"
+          }
+        `}
+      >
+        {icon}
+      </span>
+
+      <span className="text-[10px] font-bold tracking-[0.14em]">
+        {label.toUpperCase()}
+      </span>
     </Link>
   );
 }
@@ -44,103 +75,117 @@ export default function Navbar({
   const isActive = (path: string) =>
     location.pathname === path;
 
-  return (
-    <header className="sticky top-0 z-50 h-16 border-b border-border bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-full max-w-[1600px] items-center justify-between px-6 lg:px-8">
+  const isAlertsActive =
+    location.pathname.startsWith("/region/dahej/alerts");
 
-        {/* ───────── Brand ───────── */}
-        <div className="flex items-center gap-4">
+  return (
+    <header className="sticky top-0 z-50 h-[72px] border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div className="mx-auto flex h-full max-w-[1600px] items-center justify-between px-5 lg:px-16">
+
+        {/* ========================================================= */}
+        {/* BRAND                                                     */}
+        {/* ========================================================= */}
+
+        <div className="flex min-w-0 items-center gap-4">
+
           <Link
             to="/"
-            className="flex items-center gap-2.5"
+            className="flex min-w-0 items-center gap-1"
           >
-            <span className="grid h-8 w-8 place-items-center rounded-sm bg-primary font-display text-sm font-bold text-primary-foreground">
-              P
-            </span>
+            <img
+              src={phoenixLogo}
+              alt="PHOENIX"
+              className="h-11 w-11 object-contain"
+            />
 
-            <span className="font-display text-lg font-bold tracking-tight text-foreground">
-              PHOENIX
-            </span>
+            <div className="flex min-w-0 flex-col">
+              <span className="font-display text-[20px] font-semibold tracking-[0.1em] text-slate-900">
+                PHOENIX
+              </span>
+
+             
+            </div>
           </Link>
 
+          {/* Region */}
           {showRegionNav && regionName && (
             <>
-              <span className="hidden h-5 w-px bg-border sm:block" />
+              <span className="hidden h-7 w-px bg-slate-200 sm:block" />
 
-              <span className="hidden text-xs font-medium tracking-wide text-muted-foreground sm:block">
-                {regionName}
-              </span>
+              <div className="hidden items-center gap-2 sm:flex">
+                <Map className="h-3.5 w-3.5 text-slate-400" />
+
+                <div className="flex flex-col">
+                
+
+                  <span className="text-[10px] font-semibold tracking-[0.08em] text-slate-800">
+                    {regionName.toUpperCase()}
+                  </span>
+                </div>
+              </div>
             </>
           )}
         </div>
 
-        {/* ───────── Navigation ───────── */}
+        {/* ========================================================= */}
+        {/* NAVIGATION                                                */}
+        {/* ========================================================= */}
+
         {showRegionNav && (
-          <nav className="ml-auto mr-6 hidden items-center gap-1 md:flex">
+          <nav className="ml-auto hidden items-center md:flex">
+
             <NavLink
               to="/region/dahej"
               label="Overview"
+              icon={
+                <LayoutDashboard
+                  className="h-4 w-4"
+                  strokeWidth={1.8}
+                />
+              }
               active={isActive("/region/dahej")}
             />
 
             <NavLink
               to="/region/dahej/explore"
               label="Explore"
-              active={isActive("/region/dahej/explore")}
+              icon={
+                <Map
+                  className="h-4 w-4"
+                  strokeWidth={1.8}
+                />
+              }
+              active={isActive(
+                "/region/dahej/explore",
+              )}
             />
 
             <NavLink
               to="/region/dahej/facilities"
               label="Facilities"
-              active={isActive("/region/dahej/facilities")}
+              icon={
+                <Factory
+                  className="h-4 w-4"
+                  strokeWidth={1.8}
+                />
+              }
+              active={isActive(
+                "/region/dahej/facilities",
+              )}
             />
 
             <NavLink
               to="/region/dahej/alerts"
               label="Alerts"
-              active={location.pathname.startsWith("/region/dahej/alerts")}
-            />
-
-            <NavLink
-              to="/region/dahej/charts"
-              label="Charts"
-              active={location.pathname.startsWith("/region/dahej/charts")}
+              icon={
+                <Bell
+                  className="h-4 w-4"
+                  strokeWidth={1.8}
+                />
+              }
+              active={isAlertsActive}
             />
           </nav>
-        )}
-
-        {/* ───────── Actions ───────── */}
-        {showRegionNav && (
-          <div className="flex items-center gap-1">
-            {/* Alerts */}
-            <Link
-              to="/region/dahej/alerts"
-              className="
-                relative
-                flex
-                h-9
-                items-center
-                gap-2
-                rounded-md
-                px-3
-                text-xs
-                font-medium
-                text-muted-foreground
-                transition-colors
-                hover:bg-accent
-                hover:text-foreground
-              "
-            >
-              <Bell className="h-4 w-4" />
-
-              <span className="hidden sm:inline">
-                Alerts
-              </span>
-
-              <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-danger" />
-            </Link>
-
-          </div>
         )}
       </div>
     </header>

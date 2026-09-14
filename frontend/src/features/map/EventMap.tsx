@@ -456,7 +456,7 @@ export default function EventMap({
     ? facilities.find((facility) => facility.facility_id === selectedEvent.facility_id)
     : undefined;
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl">
+    <div className="relative h-full w-full overflow-hidden ">
       <MapContainer
         center={DAHEJ_CENTER}
         zoom={11}

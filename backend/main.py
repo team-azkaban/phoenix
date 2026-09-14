@@ -10,6 +10,9 @@ from api.map_replay import router as map_replay_router
 from api.map_events import router as map_events_router
 from api.facilities import router as facilities_router
 from api.chat import router as chat_router
+from api.region_overview import router as region_overview_router
+from api.alerts import router as alerts_router
+
 app = FastAPI(
     title="Phoenix API",
     description="Phoenix thermal event intelligence API",
@@ -28,6 +31,8 @@ app.include_router(map_replay_router)
 app.include_router(map_events_router)
 app.include_router(facilities_router)
 app.include_router(chat_router)
+app.include_router(region_overview_router)
+app.include_router(alerts_router)
 
 @app.get("/health")
 def health():

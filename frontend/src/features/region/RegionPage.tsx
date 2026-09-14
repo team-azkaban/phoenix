@@ -1,55 +1,103 @@
-import { AlertTriangle, BarChart3, Building2, ChevronRight, Flame, MapPinned, Radio, RefreshCw, ShieldAlert } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 import Navbar from "../../components/layout/Navbar";
-import { humanize, severityTone, type Facility, type ThermalEvent } from "../../types/thermal";
-import RegionMapPreview from "./RegionMapPreview";
-
-const API_BASE_URL = "http://127.0.0.1:8000";
-const REPLAY_WINDOW = "window-3";
+import { fetchRegionOverview } from "./regionApi";
+import RegionOverview from "./RegionOverview";
+import IntelligenceLoader from "../../components/IntelligenceLoader";
+import type { RegionOverview as RegionOverviewData } from "../../types/region";
 
 export default function RegionPage() {
   const { regionId } = useParams();
-  const [events, setEvents] = useState<ThermalEvent[]>([]);
-  const [facilities, setFacilities] = useState<Facility[]>([]);
+
+  const [data, setData] = useState<RegionOverviewData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (regionId !== "dahej") return;
-    setLoading(true); setError(false);
-    Promise.all([fetch(`${API_BASE_URL}/map/events?window_id=${REPLAY_WINDOW}`), fetch(`${API_BASE_URL}/facilities`)])
-      .then(async ([eventResponse, facilityResponse]) => {
-        if (!eventResponse.ok || !facilityResponse.ok) throw new Error("Overview API unavailable");
-        const [eventData, facilityData] = await Promise.all([eventResponse.json(), facilityResponse.json()]);
-        setEvents(eventData.events ?? []); setFacilities(facilityData.facilities ?? []); setUpdatedAt(new Date());
-      })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
+    if (!regionId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const result = await fetchRegionOverview("window-3");
+
+        if (!cancelled) {
+          setData(result);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Unable to load regional intelligence.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [regionId]);
 
-  const summary = useMemo(() => {
-    const highRisk = events.filter((event) => (event.risk_score ?? 0) >= 70 || ["high", "critical"].includes(event.severity?.toLowerCase() ?? "")).length;
-    const anomalous = events.filter((event) => ["anomalous", "elevated", "critical"].includes(event.anomaly_state?.toLowerCase() ?? "")).length;
-    const meanFrp = events.length ? events.reduce((total, event) => total + (event.max_frp ?? event.current_frp ?? 0), 0) / events.length : 0;
-    const classes = events.reduce<Record<string, number>>((result, event) => { const key = event.classification ?? "unknown"; result[key] = (result[key] ?? 0) + 1; return result; }, {});
-    return { highRisk, anomalous, meanFrp, classes };
-  }, [events]);
-  const priority = useMemo(() => [...events].sort((a, b) => (b.risk_score ?? -1) - (a.risk_score ?? -1)).slice(0, 5), [events]);
-  const watchlist = useMemo(() => [...facilities].sort((a, b) => (b.current_risk ?? -1) - (a.current_risk ?? -1)).slice(0, 5), [facilities]);
-
-  if (regionId !== "dahej") return <main className="min-h-screen bg-background text-foreground"><Navbar /><div className="grid min-h-[calc(100vh-64px)] place-items-center text-sm text-muted-foreground">Region not available</div></main>;
-  return <main className="min-h-screen bg-background text-foreground"><Navbar showRegionNav regionName="DAHEJ" /><section className="mx-auto max-w-[1600px] px-4 py-6 md:px-6 lg:px-8"><header className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-[10px] font-bold tracking-[0.18em] text-primary">REGION INTELLIGENCE</p><h1 className="mt-2 text-3xl font-bold tracking-tight">Dahej Industrial Region</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Operational overview of thermal events, facility activity and current investigation priorities.</p></div><Status loading={loading} error={error} updatedAt={updatedAt} /></header>
-    {error ? <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"><strong>Overview data is unavailable.</strong> The map, alert and facility views remain available when their sources recover.</div> : <>
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><SummaryCard icon={<Flame />} label="Events in current window" value={loading ? "—" : String(events.length)} detail="7 day historical replay" /><SummaryCard icon={<ShieldAlert />} label="High risk events" value={loading ? "—" : String(summary.highRisk)} detail="Risk score at least 70" tone="red" /><SummaryCard icon={<AlertTriangle />} label="Anomalous sources" value={loading ? "—" : String(summary.anomalous)} detail="Elevated, anomalous or critical" tone="amber" /><SummaryCard icon={<Building2 />} label="Monitored facilities" value={loading ? "—" : String(facilities.length)} detail="Industrial context layer" tone="slate" /></div>
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_.9fr]"><section className="rounded-2xl border border-border bg-card p-5"><div className="flex items-center justify-between"><div><h2 className="text-base font-bold">Priority incidents</h2><p className="mt-1 text-xs text-muted-foreground">Highest risk events in the current replay window.</p></div><Link to={`/region/${regionId}/alerts`} className="text-xs font-bold text-orange-600 hover:text-orange-700">View all alerts</Link></div><div className="mt-4 divide-y divide-slate-100">{loading ? <p className="py-8 text-center text-sm text-slate-500">Loading incidents...</p> : priority.length ? priority.map((event) => <Link key={event.event_id} to={`/region/${regionId}/alerts/${event.event_id}`} className="flex items-center gap-3 py-3 hover:bg-slate-50"><span className="grid h-9 w-9 place-items-center rounded-lg bg-orange-50 text-orange-600"><Flame className="h-4 w-4" /></span><span className="min-w-0 flex-1"><strong className="block truncate text-sm text-slate-800">{humanize(event.classification)}</strong><span className="text-xs text-slate-500">Risk {event.risk_score?.toFixed(0) ?? "—"} · {humanize(event.anomaly_state)}</span></span><span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase ring-1 ${severityTone(event.severity)}`}>{humanize(event.severity)}</span><ChevronRight className="h-4 w-4 text-slate-400" /></Link>) : <p className="py-8 text-center text-sm text-slate-500">No events are available.</p>}</div></section><section><div className="mb-3 flex items-center justify-between"><div><h2 className="text-base font-bold">Region map</h2><p className="mt-1 text-xs text-muted-foreground">Classification-colored thermal event locations.</p></div><MapPinned className="h-5 w-5 text-slate-400" /></div><RegionMapPreview events={events} regionId={regionId} /></section></div>
-      <div className="mt-6 grid gap-6 xl:grid-cols-[.9fr_1.1fr]"><section className="rounded-2xl border border-border bg-card p-5"><div className="flex items-center justify-between"><div><h2 className="text-base font-bold">Facility watchlist</h2><p className="mt-1 text-xs text-muted-foreground">Facilities ranked by current risk.</p></div><Link to={`/region/${regionId}/facilities`} className="text-xs font-bold text-orange-600 hover:text-orange-700">Open facilities</Link></div><div className="mt-4 divide-y divide-slate-100">{watchlist.map((facility) => <Link key={facility.facility_id} to={`/region/${regionId}/facilities/${facility.facility_id}`} className="flex items-center gap-3 py-3 hover:bg-slate-50"><Building2 className="h-4 w-4 shrink-0 text-slate-400" /><span className="min-w-0 flex-1"><strong className="block truncate text-sm text-slate-800">{facility.name}</strong><span className="text-xs text-slate-500">{facility.anomalous_event_count ?? 0} anomalous events · emissions {facility.cumulative_emissions?.toFixed(1) ?? "—"}</span></span><span className="text-sm font-bold text-slate-700">{facility.current_risk?.toFixed(0) ?? "—"}</span></Link>)}</div></section><section className="rounded-2xl border border-border bg-card p-5"><div className="flex items-center justify-between"><div><h2 className="text-base font-bold">Region activity snapshot</h2><p className="mt-1 text-xs text-muted-foreground">Classification mix and observed thermal intensity.</p></div><BarChart3 className="h-5 w-5 text-slate-400" /></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><div className="rounded-xl bg-slate-50 p-4"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Average peak FRP</p><p className="mt-1 text-2xl font-bold text-slate-800">{summary.meanFrp.toFixed(1)} <span className="text-sm">MW</span></p></div><div className="rounded-xl bg-slate-50 p-4"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Most common class</p><p className="mt-1 text-lg font-bold text-slate-800">{humanize(Object.entries(summary.classes).sort((a, b) => b[1] - a[1])[0]?.[0])}</p></div></div><div className="mt-4 space-y-2">{Object.entries(summary.classes).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => <div key={name} className="flex items-center gap-3 text-xs"><span className="w-28 truncate text-slate-500">{humanize(name)}</span><div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-orange-400" style={{ width: `${events.length ? (count / events.length) * 100 : 0}%` }} /></div><strong className="w-6 text-right text-slate-700">{count}</strong></div>)}</div></section></div>
-      <section className="mt-6 rounded-2xl border border-border bg-card p-5"><h2 className="text-base font-bold">Quick actions</h2><div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><QuickAction to={`/region/${regionId}/explore`} icon={<MapPinned />} title="Explore live map" text="Filter and investigate thermal events." /><QuickAction to={`/region/${regionId}/alerts`} icon={<AlertTriangle />} title="View alerts" text="Review risk evidence and impact." /><QuickAction to={`/region/${regionId}/facilities`} icon={<Building2 />} title="Open facilities" text="Inspect history and current risk." /><QuickAction to={`/region/${regionId}/charts`} icon={<BarChart3 />} title="Compare charts" text="Actual FRP against site baselines." /></div></section>
-    </>}</section></main>;
+  if (loading) {
+  return (
+    <IntelligenceLoader
+      label="REGIONAL THERMAL INTELLIGENCE"
+      message="Resolving the Dahej signal field"
+    />
+  );
 }
 
-function SummaryCard({ icon, label, value, detail, tone = "orange" }: { icon: React.ReactNode; label: string; value: string; detail: string; tone?: "orange" | "red" | "amber" | "slate" }) { const tones = { orange: "bg-orange-50 text-orange-600", red: "bg-red-50 text-red-600", amber: "bg-amber-50 text-amber-600", slate: "bg-slate-100 text-slate-600" }; return <div className="rounded-2xl border border-border bg-card p-4"><div className={`grid h-9 w-9 place-items-center rounded-lg ${tones[tone]}`}>{icon}</div><p className="mt-4 text-2xl font-bold text-slate-900">{value}</p><p className="mt-1 text-sm font-bold text-slate-700">{label}</p><p className="mt-1 text-xs text-slate-500">{detail}</p></div>; }
-function QuickAction({ to, icon, title, text }: { to: string; icon: React.ReactNode; title: string; text: string }) { return <Link to={to} className="group rounded-xl border border-slate-200 p-4 hover:border-orange-200 hover:bg-orange-50/50"><span className="text-orange-600">{icon}</span><strong className="mt-3 block text-sm text-slate-800">{title}</strong><span className="mt-1 block text-xs leading-5 text-slate-500">{text}</span></Link>; }
-function Status({ loading, error, updatedAt }: { loading: boolean; error: boolean; updatedAt: Date | null }) { return <div className="flex items-center gap-2 text-xs text-slate-500"><span className={`h-2 w-2 rounded-full ${error ? "bg-red-500" : loading ? "bg-amber-400" : "bg-emerald-500"}`} />{error ? "Data unavailable" : loading ? "Loading regional data" : <><Radio className="h-3.5 w-3.5 text-emerald-600" />Historical replay · updated {updatedAt?.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}</>}<RefreshCw className={loading ? "h-3.5 w-3.5 animate-spin" : "hidden"} /></div>; }
+  if (error || !data) {
+    return (
+      <main className="min-h-screen bg-background text-foreground">
+        <Navbar showRegionNav regionName="DAHEJ" />
+
+        <div className="mx-auto flex min-h-[calc(100vh-64px)] max-w-[900px] items-center px-6">
+          <div className="w-full border border-red-200 bg-white p-8">
+            <p className="text-[9px] font-bold tracking-[0.18em] text-red-600">
+              INTELLIGENCE SERVICE ERROR
+            </p>
+
+            <h1 className="mt-3 text-xl font-semibold text-slate-900">
+              Regional intelligence unavailable
+            </h1>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              {error ?? "No intelligence payload was returned."}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="mt-6 border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <>
+      <Navbar showRegionNav regionName="DAHEJ" />
+      <RegionOverview data={data} />
+    </>
+  );
+}

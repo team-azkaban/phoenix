@@ -37,7 +37,7 @@ function AssistantMessage({ text }: { text: string }) {
   const lines = text.split(/\r?\n/);
 
   return (
-    <div className="max-w-[88%] rounded-xl bg-muted px-4 py-3 text-sm leading-6 text-foreground">
+    <div className="max-w-[88%]  bg-muted px-4 py-3 text-sm leading-6 text-foreground">
       <div className="space-y-2">
         {lines.map((line, index) => {
           const numberedItem = line.match(/^\s*(\d+)\.\s+(.*)$/);
@@ -163,7 +163,7 @@ export default function AskPhoenix() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="ask-phoenix-title"
-            className="absolute bottom-24 right-4 w-[min(420px,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:right-6"
+            className="absolute bottom-24 right-4 w-[min(420px,calc(100vw-2rem))] overflow-hidden border border-border bg-card shadow-2xl sm:right-6"
           >
         <div className="border-b border-border bg-gradient-to-r from-card to-accent/30 px-5 py-5 sm:px-7">
           <div className="flex items-start justify-between gap-3">
@@ -229,7 +229,7 @@ export default function AskPhoenix() {
                 key={suggestion}
                 type="button"
                 onClick={() => setQuestion(suggestion)}
-                className="rounded-full border border-border bg-background px-3 py-2 text-left text-xs text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+                className="border border-border bg-background px-3 py-2 text-left text-xs text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
               >
                 {suggestion}
               </button>
@@ -239,11 +239,11 @@ export default function AskPhoenix() {
 
         <form onSubmit={submitQuestion} className="p-5 sm:p-7">
           {error && (
-            <p className="mb-3 rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-xs text-danger">
+            <p className="mb-3 border border-danger/20 bg-danger/5 px-3 py-2 text-xs text-danger">
               {error}
             </p>
           )}
-          <div className="flex items-center gap-2 rounded-xl border border-input bg-background p-2 shadow-sm transition focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10">
+          <div className="flex items-center gap-2 border border-input bg-background p-2 shadow-sm transition focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10">
             <input
               value={question}
               onChange={(event) => setQuestion(event.target.value)}

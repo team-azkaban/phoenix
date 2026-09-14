@@ -78,7 +78,7 @@ export default function LandingHero({ onSearch }: LandingHeroProps) {
               <button
                 type="button"
                 onClick={onSearch}
-                className="group inline-flex h-12 items-center gap-3 rounded-full bg-thermal px-6 text-sm font-semibold text-white shadow-[0_8px_28px_rgba(230,90,25,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_34px_rgba(230,90,25,0.28)]"
+                className="group inline-flex h-11 items-center gap-3 bg-thermal px-4 text-xs font-semibold text-white shadow-[0_8px_28px_rgba(230,90,25,0.22)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_34px_rgba(230,90,25,0.28)]"
               >
                 <MapPin className="h-4 w-4" />
                 Explore Intelligence
@@ -87,7 +87,7 @@ export default function LandingHero({ onSearch }: LandingHeroProps) {
 
               <button
                 type="button"
-                className="inline-flex h-12 items-center gap-3 rounded-full border border-slate-300 bg-white/50 px-5 text-sm font-medium text-slate-700 backdrop-blur-sm transition-all hover:border-slate-400 hover:bg-white/70"
+                className="inline-flex h-11 items-center gap-3 border border-slate-300 bg-white/50 px-4 text-xs font-medium text-slate-700 backdrop-blur-sm transition-all hover:border-slate-400 hover:bg-white/70"
               >
                 <Play className="h-3.5 w-3.5 fill-current" />
                 See how it works
