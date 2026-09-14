@@ -79,6 +79,7 @@ export default function ExplorePage() {
 
   const [selectedEventId, setSelectedEventId] =
     useState<string | null>(searchParams.get("event"));
+  const selectedFacilityId = searchParams.get("facility");
 
   const [loading, setLoading] =
     useState(true);
@@ -156,6 +157,12 @@ export default function ExplorePage() {
     regionId,
     selectedWindowId,
   ]);
+
+  useEffect(() => {
+    if (selectedFacilityId) {
+      setLayers((current) => ({ ...current, facilities: true }));
+    }
+  }, [selectedFacilityId]);
 
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
@@ -340,6 +347,7 @@ export default function ExplorePage() {
                 }
                 selectedEventId={selectedEventId}
                 onEventSelect={handleEventSelect}
+                selectedFacilityId={selectedFacilityId}
               />
 
               {/* Top-left map controls */}
