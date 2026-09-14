@@ -28,6 +28,7 @@ interface EventMapProps {
   ) => void;
   selectedEventId?: string | null;
   onEventSelect?: (event: ThermalEvent) => void;
+  selectedFacilityId?: string | null;
 }
 
 const DAHEJ_CENTER: [number, number] = [
@@ -153,6 +154,26 @@ function FitDahejBounds() {
   return null;
 }
 
+function FocusFacility({ facility }: { facility?: Facility }) {
+  const map = useMap();
+  useEffect(() => {
+    if (facility) {
+      map.setView([facility.latitude, facility.longitude], 14, { animate: true });
+    }
+  }, [facility, map]);
+  return null;
+}
+
+function FocusEvent({ event }: { event?: ThermalEvent }) {
+  const map = useMap();
+  useEffect(() => {
+    if (event) {
+      map.setView([event.latitude, event.longitude], 14, { animate: true });
+    }
+  }, [event, map]);
+  return null;
+}
+
 function ZoomButtons() {
   const map = useMap();
 
@@ -185,8 +206,10 @@ function ZoomButtons() {
 
 function FacilityLayer({
   facilities,
+  selectedFacilityId,
 }: {
   facilities: Facility[];
+  selectedFacilityId?: string | null;
 }) {
   return (
     <>
@@ -202,6 +225,7 @@ function FacilityLayer({
           return null;
         }
 
+        const selected = facility.facility_id === selectedFacilityId;
         return (
           <CircleMarker
             key={facility.facility_id}
@@ -209,12 +233,12 @@ function FacilityLayer({
               facility.latitude,
               facility.longitude,
             ]}
-            radius={7}
+            radius={selected ? 12 : 7}
             pane="facilityPane"
             pathOptions={{
-              color: "#334155",
-              weight: 2,
-              fillColor: "#ffffff",
+              color: selected ? "#ea580c" : "#334155",
+              weight: selected ? 4 : 2,
+              fillColor: selected ? "#fed7aa" : "#ffffff",
               fillOpacity: 1,
             }}
           >
@@ -424,7 +448,13 @@ export default function EventMap({
   onFilterChange: _onFilterChange,
   selectedEventId,
   onEventSelect,
+  selectedFacilityId,
 }: EventMapProps) {
+  const selectedFacility = facilities.find((facility) => facility.facility_id === selectedFacilityId);
+  const selectedEvent = events.find((event) => event.event_id === selectedEventId);
+  const linkedFacility = selectedEvent?.facility_id
+    ? facilities.find((facility) => facility.facility_id === selectedEvent.facility_id)
+    : undefined;
   return (
     <div className="relative h-full w-full overflow-hidden rounded-2xl">
       <MapContainer
@@ -448,11 +478,16 @@ export default function EventMap({
 
         <FitDahejBounds />
 
+        <FocusFacility facility={selectedFacility ?? linkedFacility} />
+
+        {!selectedFacility && !linkedFacility && <FocusEvent event={selectedEvent} />}
+
         <ZoomButtons />
 
         {layers.facilities && (
           <FacilityLayer
             facilities={facilities}
+            selectedFacilityId={selectedFacilityId}
           />
         )}
 
