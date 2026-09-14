@@ -2,6 +2,7 @@ import { Bot, LoaderCircle, MessageCircle, Send, Sparkles, User, X } from "lucid
 import axios from "axios";
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useLocation } from "react-router-dom";
 
 import { askPhoenix } from "../../services/api";
 
@@ -19,6 +20,7 @@ type Message = {
 };
 
 export default function AskPhoenix() {
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -71,6 +73,12 @@ export default function AskPhoenix() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  // Ask Phoenix only appears on region/explore/facilities pages, never on the
+  // landing page ("/"). All hooks above still run on every render.
+  if (location.pathname === "/") {
+    return null;
   }
 
   return (

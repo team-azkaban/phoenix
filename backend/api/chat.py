@@ -58,6 +58,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     region: str
+    provider: str | None = None
 
 
 def _json_value(value: Any) -> Any:
@@ -158,6 +159,82 @@ def _store_cached_answer(key: str, answer: str) -> None:
     _ANSWER_CACHE[key] = (time.monotonic(), answer)
 
 
+async def _call_gemini(prompt: str, client: httpx.AsyncClient) -> str:
+    """Try the configured Gemini model(s). Raises httpx.HTTPStatusError (e.g. 429
+    on quota exhaustion) or httpx.RequestError on failure, so the caller can fall
+    back to another provider."""
+    model_names = [settings.gemini_model, "gemini-flash-latest", "gemini-2.5-flash-lite"]
+    attempted_models: set[str] = set()
+    payload = {
+        "contents": [
+            {"role": "user", "parts": [{"text": f"{CHAT_SCOPE}\n\n{prompt}"}]},
+        ],
+        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 180},
+    }
+
+    last_error: Exception | None = None
+    for model_name in model_names:
+        if not model_name or model_name in attempted_models:
+            continue
+        attempted_models.add(model_name)
+        endpoint = (
+            "https://generativelanguage.googleapis.com/v1beta/models/"
+            f"{model_name}:generateContent"
+        )
+        try:
+            response = await client.post(
+                endpoint,
+                params={"key": settings.gemini_api_key},
+                json=payload,
+            )
+            response.raise_for_status()
+            result = response.json()
+            parts = result["candidates"][0]["content"]["parts"]
+            answer = next(part["text"] for part in parts if part.get("text")).strip()
+            if answer:
+                return answer
+        except httpx.HTTPStatusError as exc:
+            last_error = exc
+            if exc.response.status_code == 429:
+                # Quota exhausted for this key - no point trying other Gemini
+                # models, let the caller fall back to another provider.
+                raise
+            if exc.response.status_code == 404:
+                continue
+            raise
+        except httpx.RequestError as exc:
+            last_error = exc
+            raise
+
+    if last_error is not None:
+        raise last_error
+    raise HTTPException(status_code=502, detail="Gemini returned an invalid response.")
+
+
+async def _call_groq(prompt: str, client: httpx.AsyncClient) -> str:
+    """Free, fast fallback provider (Groq's OpenAI-compatible chat completions
+    endpoint). Raises httpx.HTTPStatusError or httpx.RequestError on failure."""
+    response = await client.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers={"Authorization": f"Bearer {settings.groq_api_key}"},
+        json={
+            "model": settings.groq_model,
+            "messages": [
+                {"role": "system", "content": CHAT_SCOPE},
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0.2,
+            "max_tokens": 300,
+        },
+    )
+    response.raise_for_status()
+    result = response.json()
+    answer = result["choices"][0]["message"]["content"].strip()
+    if not answer:
+        raise HTTPException(status_code=502, detail="Groq returned an empty response.")
+    return answer
+
+
 @router.post("", response_model=ChatResponse)
 async def ask_phoenix(
     request: ChatRequest,
@@ -169,10 +246,13 @@ async def ask_phoenix(
             detail="Ask Phoenix currently supports the Dahej region only.",
         )
 
-    if not settings.gemini_api_key:
+    if not settings.gemini_api_key and not settings.groq_api_key:
         raise HTTPException(
             status_code=503,
-            detail="Gemini is not configured. Add GEMINI_API_KEY to backend/.env.",
+            detail=(
+                "No chat provider is configured. Add GEMINI_API_KEY and/or "
+                "GROQ_API_KEY to backend/.env."
+            ),
         )
 
     global _LAST_REQUEST_AT
@@ -197,87 +277,45 @@ async def ask_phoenix(
         f"User question: {request.question.strip()}"
     )
 
-    payload = {
-        "contents": [
-            {
-                "role": "user",
-                "parts": [{"text": f"{CHAT_SCOPE}\n\n{prompt}"}],
-            }
-        ],
-        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 180},
-    }
+    answer: str | None = None
+    provider_used: str | None = None
+    failures: list[str] = []
 
-    try:
-        async with httpx.AsyncClient(timeout=60) as client:
-            model_names = [
-                settings.gemini_model,
-                "gemini-flash-latest",
-                "gemini-2.5-flash-lite",
-            ]
-            attempted_models: set[str] = set()
-            result: dict[str, Any] | None = None
+    async with httpx.AsyncClient(timeout=60) as client:
+        if settings.gemini_api_key:
+            try:
+                answer = await _call_gemini(prompt, client)
+                provider_used = "gemini"
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code == 429:
+                    failures.append("Gemini quota is exhausted for this key")
+                else:
+                    failures.append(f"Gemini returned {exc.response.status_code}")
+            except httpx.RequestError:
+                failures.append("Gemini is unreachable")
 
-            for model_name in model_names:
-                if not model_name or model_name in attempted_models:
-                    continue
-                attempted_models.add(model_name)
-                endpoint = (
-                    "https://generativelanguage.googleapis.com/v1beta/models/"
-                    f"{model_name}:generateContent"
-                )
-                try:
-                    response = await client.post(
-                        endpoint,
-                        params={"key": settings.gemini_api_key},
-                        json=payload,
-                    )
-                    response.raise_for_status()
-                    result = response.json()
-                    break
-                except (httpx.HTTPStatusError, httpx.RequestError) as exc:
-                    if isinstance(exc, httpx.HTTPStatusError):
-                        if exc.response.status_code == 429:
-                            raise exc
-                        if exc.response.status_code == 404:
-                            continue
-                    if model_name == model_names[-1]:
-                        raise exc
+        if answer is None and settings.groq_api_key:
+            try:
+                answer = await _call_groq(prompt, client)
+                provider_used = "groq"
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code == 429:
+                    failures.append("Groq quota is exhausted for this key")
+                else:
+                    failures.append(f"Groq returned {exc.response.status_code}")
+            except httpx.RequestError:
+                failures.append("Groq is unreachable")
 
-            if result is None:
-                raise HTTPException(
-                    status_code=502,
-                    detail="No configured Gemini model is available for this API key.",
-                )
-    except httpx.HTTPStatusError as exc:
-        if exc.response.status_code == 429:
-            raise HTTPException(
-                status_code=503,
-                detail=(
-                    "Gemini quota is exhausted for the configured API key. "
-                    "Wait for the quota window to reset or use another Gemini key."
-                ),
-            ) from exc
+    if answer is None:
+        detail = (
+            "; ".join(failures)
+            if failures
+            else "No configured chat provider could answer this request."
+        )
         raise HTTPException(
-            status_code=502,
-            detail="Gemini could not answer the request.",
-        ) from exc
-    except httpx.RequestError as exc:
-        raise HTTPException(
-            status_code=502,
-            detail="Gemini is temporarily unreachable.",
-        ) from exc
-
-    try:
-        parts = result["candidates"][0]["content"]["parts"]
-        answer = next(part["text"] for part in parts if part.get("text")).strip()
-    except (KeyError, IndexError, TypeError) as exc:
-        raise HTTPException(
-            status_code=502,
-            detail="Gemini returned an invalid response.",
-        ) from exc
-
-    if not answer:
-        raise HTTPException(status_code=502, detail="Gemini returned an empty response.")
+            status_code=503,
+            detail=f"Ask Phoenix could not get an answer right now ({detail}).",
+        )
 
     _store_cached_answer(cache_key, answer)
-    return ChatResponse(answer=answer, region=request.region)
+    return ChatResponse(answer=answer, region=request.region, provider=provider_used)
