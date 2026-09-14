@@ -12,9 +12,10 @@ type EventListPopupProps = {
 };
 
 function formatDuration(
-  hours: number | null | undefined,
+  hours: string | number | null | undefined,
 ) {
   if (hours == null) return "—";
+  if (typeof hours === "string") return hours;
 
   const totalMinutes = Math.round(hours * 60);
   const h = Math.floor(totalMinutes / 60);
