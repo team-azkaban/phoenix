@@ -9,6 +9,8 @@ import LandingPage from "../features/landing/LandingPage";
 import RegionPage from "../features/region/RegionPage";
 import ExplorePage from "../features/map/ExplorePage";
 import FacilitiesPage from "../features/facilities/FacilitiesPage";
+import AlertsPage from "../features/alerts/AlertsPage";
+import ChartsPage from "../features/charts/ChartsPage";
 
 function AppLayout() {
   return (
@@ -38,6 +40,18 @@ export const router = createBrowserRouter([
       {
         path: "/region/:regionId/facilities",
         element: <FacilitiesPage />,
+      },
+      {
+        path: "/region/:regionId/facilities/:facilityId",
+        element: <FacilitiesPage />,
+      },
+      {
+        path: "/region/:regionId/alerts/:eventId?",
+        element: <AlertsPage />,
+      },
+      {
+        path: "/region/:regionId/charts/:facilityId?",
+        element: <ChartsPage />,
       },
       {
         path: "*",
