@@ -1,0 +1,43 @@
+[33mcommit 04168c3dd74b9617643373a3f306c8dcde51ffba[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mjuhi[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/juhi[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Merge: 8c3f154 7a90abd
+Author: Ananya Sharma <142817946+ananya-sh30@users.noreply.github.com>
+Date:   Tue Sep 15 03:59:50 2026 +0530
+
+    Merge pull request #5 from team-azkaban/ananya
+    
+    Final POC changes
+
+ backend/api/alerts.py                              |  128 [32m++[m
+ backend/api/facilities.py                          |  332 [32m++++[m[31m-[m
+ backend/api/region_overview.py                     |  296 [32m++++[m
+ .../ingestion/baselines/build_site_baselines.py    |  615 [32m+[m[31m--------[m
+ backend/main.py                                    |    5 [32m+[m
+ backend/requirements.txt                           |  114 [32m+[m[31m-[m
+ backend/services/facility_intelligence.py          | 1134 [32m+++++++++++++++[m
+ frontend/package-lock.json                         |  403 [32m+++++[m[31m-[m
+ frontend/package.json                              |    1 [32m+[m
+ frontend/src/app/routes.tsx                        |   23 [32m+[m[31m-[m
+ frontend/src/assets/satelliteimage.jpg             |  Bin [31m0[m -> [32m111896[m bytes
+ frontend/src/components/IntelligenceLoader.tsx     |  235 [32m++++[m
+ frontend/src/components/layout/Navbar.tsx          |  187 [32m++[m[31m-[m
+ frontend/src/features/alerts/AlertCharts.tsx       |  786 [32m+++++++++++[m
+ frontend/src/features/alerts/AlertDetailPage.tsx   |  696 [32m++++++++++[m
+ .../features/alerts/AlertInvestigationDrawer.tsx   | 1097 [32m+++++++++++++++[m
+ frontend/src/features/alerts/AlertsPage.tsx        |  826 [32m++++++++++[m[31m-[m
+ frontend/src/features/alerts/alertTypes.ts         |    2 [32m+[m
+ .../src/features/facilities/FacilitiesPage.tsx     |  591 [32m+++++++[m[31m-[m
+ .../src/features/facilities/FacilityDetailPage.tsx |  613 [32m+++++++++[m
+ frontend/src/features/landing/LandingHero.tsx      |    4 [32m+[m[31m-[m
+ frontend/src/features/map/EventListPopup.tsx       | 1444 [32m+++++++++++++++[m[31m-----[m
+ frontend/src/features/map/EventMap.tsx             |    2 [32m+[m[31m-[m
+ frontend/src/features/map/ExplorePage.tsx          |   41 [32m+[m[31m-[m
+ frontend/src/features/map/ThermalEventList.tsx     |  287 [32m++[m[31m--[m
+ frontend/src/features/region/AskPhoenix.tsx        |   10 [32m+[m[31m-[m
+ frontend/src/features/region/RegionMapPreview.tsx  |   78 [32m+[m[31m-[m
+ frontend/src/features/region/RegionOverview.tsx    |  626 [32m+++++++++[m
+ frontend/src/features/region/RegionPage.tsx        |  134 [32m+[m[31m-[m
+ frontend/src/features/region/regionApi.ts          |   19 [32m+[m
+ frontend/src/index.css                             |   43 [32m+[m
+ frontend/src/services/api.ts                       |  143 [32m++[m
+ frontend/src/types/region.ts                       |   63 [32m+[m
+ 33 files changed, 9595 insertions(+), 1383 deletions(-)
