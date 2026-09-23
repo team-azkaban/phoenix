@@ -34,7 +34,51 @@ Phoenix goes beyond hotspot display and builds an event-level understanding of e
 - **Conversational access:** Ask Phoenix lets analysts query the platform in natural language, such as "Which alerts need attention?".
 
 ---
+## 🖥️ Prototype Screenshots
 
+### Landing Page
+Overview of Phoenix and its thermal intelligence workflow.
+
+![Phoenix Landing Page](screenshots/01-landing-page.png)
+
+### Regional Thermal Intelligence
+Regional view of thermal events and industrial activity.
+
+![Regional Thermal Intelligence](screenshots/02-regional-overview.png)
+
+### AI Thermal Classification
+ML-based classification using thermal, temporal, and geospatial features.
+
+![AI Thermal Classification](screenshots/03-ai-classification.png)
+
+### Event Investigation
+Classification results supported by satellite and geospatial evidence.
+
+![Event Investigation](screenshots/04-event-investigation.png)
+
+### Facility Monitoring
+Historical thermal baselines and facility-level anomaly analysis.
+
+![Facility Monitoring](screenshots/05-facility-monitoring.png)
+![Facility Monitoring](screenshots/08-facility-1.png)
+
+### Environmental Intelligence
+Facility emissions and long-term thermal activity trends.
+
+![Environmental Intelligence](screenshots/06-environmental-monitoring.png)
+
+### Incident Alerts & Impact
+Risk alerts, impact corridors, and population exposure.
+![Incident Alerts and Impact Assessment](screenshots/09-alerts.png)
+![Incident Alerts and Impact Assessment](screenshots/07-impact-assessment.png)
+![Incident Alerts and Impact Assessment](screenshots/10-downwind.png)
+
+### Ask Phoenix
+Natural-language interaction with Phoenix intelligence.
+
+![Ask Phoenix](screenshots/08-ask-phoenix.png)
+
+---
 ## 🧩 System Pipeline
 
 The pipeline runs from raw detections to analyst-facing alerts, with each stage enriching the event record produced by the previous one.
